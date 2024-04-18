@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import Button from './components/Button'
 
+const StatisticLine  = ({text, value}) => {
+  return (
+    <p>{text}: {value}</p>    
+  )
+}
+
 const Statistics = ({good, neutral, bad}) => {
   const sum = good + neutral + bad;
-  const average = (good * 1 + bad * -1) / sum;
-  const positive = (good / sum) * 100;
   if (sum === 0) {
     return (
       <div>No feedback given</div>
@@ -13,12 +17,12 @@ const Statistics = ({good, neutral, bad}) => {
   else {
     return (
       <div>
-        Good: {good}
-        Neutral: {neutral}
-        Bad: {bad}
-        All: {sum}
-        Average: {average}
-        Positive: {positive}%
+        <StatisticLine text="Good" value={good} />
+        <StatisticLine text="Neutral" value={neutral} />
+        <StatisticLine text="Bad" value={bad} />
+        <StatisticLine text="All" value={sum} />
+        <StatisticLine text="Average" value={(good * 1 + bad * -1) / sum} />
+        <StatisticLine text="Positive" value={`${parseFloat((good / sum) * 100)}%`} />
       </div>
     )
   }
