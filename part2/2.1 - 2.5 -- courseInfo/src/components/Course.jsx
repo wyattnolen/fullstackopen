@@ -1,13 +1,17 @@
-import Part from "./Part";
+import Header from "./Header";
+import Content from "./Content";
+// import Total from "./Total";
 
-const Content = (props) => {
+const Course = ({course}) => {
+    const { name, parts } = course;
+
     return (
-        <>
-            <Part name={props.parts[0].name} exercises={props.parts[0].exercises} />
-            <Part name={props.parts[1].name} exercises={props.parts[1].exercises} />
-            <Part name={props.parts[2].name} exercises={props.parts[2].exercises} />
-        </>
+        <article>
+            <Header name={name} />
+            <Content parts={parts} />
+            {/* <Total parts={parts}/> */}
+        </article>
     )
 }
 
-export default Content
+export default Course
