@@ -13,7 +13,7 @@ const App = () => {
   const handleNameSubmit = (event) => {
     event.preventDefault();
     if (doesNameAlreadyExist()) {
-      alert('hey this name exist already bucko');
+      alert(`hey ${newName} exist already bucko`);
     } else {
       const newPerson = {name: newName}
       setPersons(persons.concat(newPerson));
