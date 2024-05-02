@@ -6,10 +6,19 @@ const App = () => {
   ]) 
   const [newName, setNewName] = useState('')
 
+  const doesNameAlreadyExist = () => {
+    return persons.some(person => person.name === newName)
+  }
+
   const handleNameSubmit = (event) => {
     event.preventDefault();
-    const newPerson = {name: newName}
-    setPersons(persons.concat(newPerson));
+    if (doesNameAlreadyExist()) {
+      alert('hey this name exist already bucko');
+    } else {
+      const newPerson = {name: newName}
+      setPersons(persons.concat(newPerson));
+    }
+
   }
 
   const handleNameInputChange = (event) => {
