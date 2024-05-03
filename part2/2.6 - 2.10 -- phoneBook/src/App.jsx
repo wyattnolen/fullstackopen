@@ -5,6 +5,7 @@ const App = () => {
     { name: 'Arto Hellas' }
   ]) 
   const [newName, setNewName] = useState('')
+  const [newPhone, setNewPhone] = useState('')
 
   const doesNameAlreadyExist = () => {
     return persons.some(person => person.name === newName)
@@ -15,7 +16,7 @@ const App = () => {
     if (doesNameAlreadyExist()) {
       alert(`hey ${newName} exist already bucko`);
     } else {
-      const newPerson = {name: newName}
+      const newPerson = {name: newName, phone: newPhone}
       setPersons(persons.concat(newPerson));
     }
 
@@ -23,6 +24,9 @@ const App = () => {
 
   const handleNameInputChange = (event) => {
     setNewName(event.target.value);
+  }
+  const handlePhoneInputChange = (event) => {
+    setNewPhone(event.target.value);
   }
 
   return (
@@ -32,6 +36,7 @@ const App = () => {
       <form onSubmit={handleNameSubmit}>
         <div>
           name: <input onChange={handleNameInputChange} value={newName}/>
+          phone: <input onChange={handlePhoneInputChange} value={newPhone}/>
         </div>
         <div>
           <button type="submit">add</button>
@@ -39,7 +44,7 @@ const App = () => {
       </form>
       <h2>Numbers</h2>
       {
-        persons.map(person => <p key={person.name}>{person.name}</p>)
+        persons.map(person => <p key={person.name}>{person.name} {person.phone}</p>)
       }
     </div>
   )
