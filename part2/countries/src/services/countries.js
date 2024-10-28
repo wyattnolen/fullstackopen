@@ -6,7 +6,7 @@ const getCountryUrl = `${baseUrl}/name`;
 const getAll = () => {
 	return axios
 		.get(getAllUrl)
-		.then((response) => response.data.map(data => data.name.common))
+		.then((response) => response.data.map(data => ({ name: data.name.common, id: data.cca3 })))
 		.catch((error) => console.error("Error fetching all countries:", error));
 };
 

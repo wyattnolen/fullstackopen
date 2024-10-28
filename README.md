@@ -9,7 +9,7 @@ This course teaches JavaScript, React, Redux, Node.js, MongoDB, GraphQL, CSS and
 
  - [x] Part 00 - Fundamentals of web apps
  - [x] Part 01 - Introduction to React
- - [ ] Part 02 - Communicating with servers
+ - [x] Part 02 - Communicating with servers
  - [ ] Part 03 - Programming a server with NodeJS and Express
  - [ ] Part 04 - Testing Express servers, user administration
  - [ ] Part 05 - Testing React apps

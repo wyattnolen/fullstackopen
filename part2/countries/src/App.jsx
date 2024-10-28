@@ -1,72 +1,76 @@
 import { useState, useEffect } from "react";
 import Search from "./components/Search";
+import CountryList from "./components/CountryList";
+import CountryDetails from "./components/CountryDetails";
 import countriesService from "./services/countries";
+import weatherServices from "./services/weather";
 
 const App = () => {
-	const [searchQuery, setSearchQuery] = useState("");
 	const [searchInput, setSearchInput] = useState("");
-	const [allCountries, setAllCountries] = useState(null);
-	const [country, setCountry] = useState(null);
+	const [allCountries, setAllCountries] = useState([]);
+	const [filteredCountries, setFilteredCountries] = useState([]);
+	const [selectedCountry, setSelectedCountry] = useState(null);
+	const [weather, setWeather] = useState(null)
 
 	useEffect(() => {
-		countriesService
-		.getAll()
-		.then(returnedCountries => {
-			setAllCountries(returnedCountries);
-		})
-		
+		countriesService.getAll().then(setAllCountries);
 	}, []);
 
 	useEffect(() => {
-		console.log("effect run, searching for ", searchQuery);
+		if (searchInput) {
+			const results = allCountries.filter((country) =>
+				country.name.toLowerCase().includes(searchInput.toLowerCase())
+			);
+			setFilteredCountries(results);
 
-		if (searchQuery !== "") {
-			console.log("fetching country data...");
-			countriesService
-			.getByName(searchQuery)
-			.then(returnedCountry => {
-				setCountry(returnedCountry);
-			})
-			
+			if (results.length === 1) {
+				const selectedCountryName = results[0].name;
+				countriesService.getByName(selectedCountryName).then(setSelectedCountry);
+			} else {
+				setSelectedCountry(null);
+			}
+		} else {
+			setFilteredCountries([]);
+			setSelectedCountry(null);
 		}
-	}, [searchQuery]);
+	}, [searchInput, allCountries]);
 
-	const handleSearchChange = (event) => {
-		setSearchInput(event.target.value);
+	useEffect(() => {
+		if (selectedCountry) {
+			const latlng = selectedCountry.latlng;
+			setWeather(weatherServices.getWeatherByLocation(latlng));
+		}
+		
+
+	}, [selectedCountry])
+
+	const handleSearchChange = (event) => setSearchInput(event.target.value);
+
+	const handleCountrySelect = (countryName) => {
+		setSearchInput(countryName);
 	};
-
-	const onSearch = (event) => {
-		event.preventDefault();
-		setSearchQuery(searchInput);
-	};
-
-	// const filteredListOfPeople = persons.filter((person) =>
-	// 	person.name.toLowerCase().includes(newSearch)
-	// );
 
 	return (
 		<div>
-			debug:
-			searchInput: {searchInput}
-			searchQuery: {searchQuery}
+			<pre> { JSON.stringify(weather, null, 4)}</pre>
 			<h2>Country Lookup</h2>
-			<form onSubmit={onSearch}>
+			<form onSubmit={(e) => e.preventDefault()}>
 				<Search
 					text="Search by country name: "
 					value={searchInput}
 					handleNewChange={handleSearchChange}
 				/>
-				<button type="submit">Search</button>
+				<button type="button" onClick={() => setSearchInput("")}>
+					Clear
+				</button>
 			</form>
-			<h2>Countries</h2>
-			<pre>
-				{JSON.stringify(allCountries, null, 2)}
-			</pre>
-			<pre>
-				{JSON.stringify(country, null, 2)}
-			</pre>
 
-			
+			<h2>Countries</h2>
+			{selectedCountry ? (
+				<CountryDetails country={selectedCountry} />
+			) : (
+				<CountryList filteredCountries={filteredCountries} onCountryClick={handleCountrySelect} />
+			)}
 		</div>
 	);
 };
