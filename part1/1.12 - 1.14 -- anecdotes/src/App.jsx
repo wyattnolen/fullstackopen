@@ -1,52 +1,86 @@
-import { useState } from 'react'
-import Button from './components/Button'
-
-
-const MostVotes = ({anecdote, votes}) => {
-  return (
-    <div>
-      <h2>Most Voted Anecdote</h2>
-      <p>{anecdote}</p>
-      <p>{votes} votes</p>
-    </div>
-  )
-}
+import { useState, useEffect } from 'react'
+import axios from 'axios'
+import Note from './components/Note'
+import noteService from './services/notes'
 
 const App = () => {
-  const anecdotes = [
-    'If it hurts, do it more often.',
-    'Adding manpower to a late software project makes it later!',
-    'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
-    'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
-    'Premature optimization is the root of all evil.',
-    'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.',
-    'Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.',
-    'The only way to go fast, is to go well.'
-  ];
+  const [notes, setNotes] = useState([])
+  const [newNote, setNewNote] = useState('')
+  const [showAll, setShowAll] = useState(false)
 
-  const [selected, setSelected] = useState(0)
-  const [votes, setVotes] = useState(Array(anecdotes.length).fill(0))
+  useEffect(() => {
+    noteService
+      .getAll()
+      .then(initialNotes => {
+        setNotes(initialNotes)
+      })
+  }, [])
 
-  const handleAnecodteClick = () => {
-    setSelected(Math.floor(Math.random() * anecdotes.length));
+  const addNote = (event) => {
+    event.preventDefault()
+    const noteObject = {
+      content: newNote,
+      important: Math.random() > 0.5,
+    }
+  
+    noteService
+      .create(noteObject)
+        .then(returnedNote => {
+        setNotes(notes.concat(returnedNote))
+        setNewNote('')
+      })
   }
 
-  const handleVoteClick = () => {
-    const newVotes = [...votes]
-    newVotes[selected] += + 1
-    setVotes(newVotes);
+  const toggleImportanceOf = id => {
+    const url = `http://localhost:3001/notes/${id}`
+    const note = notes.find(n => n.id === id)
+    const changedNote = { ...note, important: !note.important }
+  
+    noteService
+      .update(id, changedNote)
+        .then(returnedNote => {
+        setNotes(notes.map(note => note.id !== id ? note : returnedNote))
+      })
+      .catch(error => {
+        alert(
+          `the note '${note.content}' was already deleted from server`
+        )
+        setNotes(notes.filter(n => n.id !== id))
+      })
   }
 
-  const maxVotes = Math.max(...votes);
-  const maxIndex = votes.indexOf(maxVotes);
+  const handleNoteChange = (event) => {
+    setNewNote(event.target.value)
+  }
+
+  const notesToShow = showAll
+    ? notes
+    : notes.filter(note => note.important)
 
   return (
     <div>
-      <p>{anecdotes[selected]}</p>
-      <p>{votes[selected]}</p>
-      <Button handleClick={handleVoteClick} text="Vote" />
-      <Button handleClick={handleAnecodteClick} text="Get Anecdote" />
-      <MostVotes anecdote={anecdotes[maxIndex]} votes={maxVotes} />
+      <h1>Notes</h1>
+      <div>
+        <button onClick={() => setShowAll(!showAll)}>
+          show {showAll ? 'important' : 'all' }
+        </button>
+      </div>      
+      <ul>
+        {notesToShow.map(note => 
+          <Note
+            key={note.id}
+            note={note}
+            toggleImportance={() => toggleImportanceOf(note.id)}
+          />
+        )}
+      </ul>
+      <form onSubmit={addNote}>
+        <input
+          value={newNote}
+          onChange={handleNoteChange}
+        />
+        <button type="submit">save</button>
+      </form> 
     </div>
   )
 }
